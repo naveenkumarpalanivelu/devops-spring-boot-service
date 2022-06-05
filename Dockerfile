@@ -5,7 +5,7 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
 
 # Refer to Maven build -> finalName
-ARG JAR_FILE=target/AWS_Rest_Service.jar
+ARG JAR_FILE=AWS_Rest_Service.jar
 
 EXPOSE 8090
 
