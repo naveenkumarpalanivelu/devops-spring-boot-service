@@ -4,22 +4,22 @@ pipeline {
         PATH = "/opt/aws/maven/bin:${env.PATH}"
     }
     stages {
-        stage ("Maven: Clean and Install") {
+        stage ("Clean and Install Maven packages") {
             steps {
                 sh 'mvn clean install'
             }
         }
-        stage ("Maven: Build Artifact") {
+        stage ("Build Maven Artifacts") {
             steps {
                 sh 'mvn package'
             }
         }
-        stage ("Upload artifact to S3 bucket") {
+        stage ("Upload Maven artifacts to S3 bucket") {
             steps {
                 s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'devops-demo-artifacts', excludedFile: '/target', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: '**/target/AWS_Rest_Service.jar', storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'S3-Artifacts', userMetadata: []
             }
         }
-        stage("Ansible Init") {
+        stage("Add ansible to the Jenkins environment path") {
             steps {
                 script {
                     def tfHome = tool name: 'ansible'
@@ -29,19 +29,19 @@ pipeline {
                 }
             }
         }
-        stage("Installing boto library for ansible playbook") {
+        stage("Install boto3 library for ansible playbook") {
             steps {
                 sh 'pip3 install -U boto3'
                 sh 'ansible --version'
                 sh 'python --version'
             }
         }
-        stage("Run backend ansible playbook") {
+        stage("Run ansible playbook to copy artifacts from S3 bucket") {
             steps {
                 sh "ansible-playbook aws_backend_s3.yaml"
             }
         }
-        stage("Docker stage") {
+        stage("Build docker Image and push it to docker hub") {
             steps {
                 script {
                     def image_id = "$BUILD_NUMBER"
