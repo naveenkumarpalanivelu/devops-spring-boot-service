@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backendservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backendservice
+  template:
+    metadata:
+      labels:
+        app: backendservice
+    spec:
+      containers:
+        - name: backendservice
+          image: 060106/docker-springboot-app:${BUILD_NUMBER}
+          ports:
+            - containerPort: 8090
+          env:
+          - name: DB_HOST
+            valueFrom:
+                 configMapKeyRef:
+                   name: absa-configmap
+                   key: DB_HOST
+          - name: DB_NAME
+            valueFrom:
+                 configMapKeyRef:
+                   name: absa-configmap
+                   key: DB_NAME
+          - name: USERNAME
+            valueFrom:
+                 secretKeyRef:
+                   name: mysql-secret
+                   key: USERNAME
+          - name: PASSWORD
+            valueFrom:
+                 secretKeyRef:
+                   name: mysql-secret
+                   key: PASSWORD
