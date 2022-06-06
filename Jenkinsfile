@@ -51,5 +51,10 @@ pipeline {
                 }
             }
         }
+        stage('Deploy backend microservice'){
+            steps {
+                sh 'kubectl apply -f Deployment-backend.yml'
+            }
+        }
     }
 }
