@@ -51,6 +51,15 @@ pipeline {
                 }
             }
         }
+        stage('remove docker images after deployment') {
+            steps {
+                script {
+                    def image_id = "$BUILD_NUMBER"
+                    sh "docker image rm naveen24788/backend:${image_id}"
+                    sh "docker image rm backend:${image_id}"
+                }
+            }
+        }
         stage('Deploy backend microservice'){
             steps {
                 sh 'kubectl apply -f Deployment-backend.yaml'
