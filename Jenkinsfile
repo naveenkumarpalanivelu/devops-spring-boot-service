@@ -16,7 +16,7 @@ pipeline {
         }
         stage ("Upload Maven artifacts to S3 bucket") {
             steps {
-                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'devops-demo-artifacts', excludedFile: '/target', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: '**/target/AWS_Rest_Service.jar', storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'S3-Artifacts', userMetadata: []
+                s3Upload(file:'target/AWS_Rest_Service.jar', bucket:'devops-demo-artifacts', path:'target/AWS_Rest_Service.jar')
             }
         }
         stage("Add ansible to the Jenkins environment path") {
@@ -62,7 +62,10 @@ pipeline {
         }
         stage('Deploy backend microservice'){
             steps {
-                sh 'kubectl apply -f Deployment-backend.yaml'
+                withAWS(credentials: 'kubernetes-cluster', region: 'us-east-1') {
+                    sh 'kubectl set image deployment/backendservice backendservice=naveen24788/backend:$BUILD_NUMBER'
+                    sh 'kubectl rollout restart deployment/backendservice'
+                }
             }
         }
     }
