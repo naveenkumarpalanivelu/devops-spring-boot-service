@@ -63,6 +63,7 @@ pipeline {
         stage('Deploy backend microservice'){
             steps {
                 withAWS(credentials: 'kubernetes-cluster', region: 'us-east-1') {
+                    sh 'aws eks --region us-east-1 update-kubeconfig --name DevOpsEksCluster3'
                     sh 'kubectl set image deployment/backendservice backendservice=naveen24788/backend:$BUILD_NUMBER'
                     sh 'kubectl rollout restart deployment/backendservice'
                 }
